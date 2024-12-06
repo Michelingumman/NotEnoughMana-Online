@@ -14,7 +14,7 @@ export interface ChallengeOutcome {
 
 export function getChallengeEffects(card: Card): ChallengeOutcome {
   if (!card.effect.challengeEffects) {
-    throw new Error(`Challenge effects not defined for card: ${card.name}`);
+    throw new Error('Invalid challenge card type');
   }
 
   return {

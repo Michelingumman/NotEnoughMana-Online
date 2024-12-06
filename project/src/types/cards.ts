@@ -1,5 +1,6 @@
 export enum CardRarity {
   COMMON = 'common',
+  UNCOMMON = 'uncommon',
   RARE = 'rare',
   EPIC = 'epic',
   LEGENDARY = 'legendary'
@@ -9,27 +10,43 @@ export type EffectType =
   | 'damage' 
   | 'heal' 
   | 'manaDrain' 
-  | 'forceDrink' 
-  | 'manaBurn' 
-  | 'potionBuff' 
   | 'manaRefill' 
-  | 'infiniteVoid' 
-  | 'titan' 
+  | 'manaBurn' 
   | 'challenge';
+
+export interface ChallengeEffects {
+  winner: {
+    type: EffectType;
+    value: number;
+  };
+  loser: {
+    type: EffectType;
+    value: number;
+  };
+}
 
 export interface CardEffect {
   type: EffectType;
   value: number;
-  challengeEffects?: {
-    winner: {
-      type: EffectType;
-      value: number;
-    };
-    loser: {
-      type: EffectType;
-      value: number;
-    };
+  challengeEffects?: ChallengeEffects;
+  statusEffect?: StatusEffect;
+  additionalEffect?: {
+    type: string;
+    value: number;
   };
+  chainEffect?: {
+    type: string;
+    value: number;
+  };
+  areaEffect?: boolean;
+  manaReturn?: number;
+  lifeSteal?: number;
+}
+
+export interface StatusEffect {
+  type: 'poison' | 'burn' | 'stun' | 'weakness';
+  value: number;
+  duration: number;
 }
 
 export interface CardBase {
@@ -49,6 +66,7 @@ export interface CardBase {
 
 export interface CardStats {
   common: number;
+  uncommon: number;
   rare: number;
   epic: number;
   legendary: number;
@@ -59,5 +77,3 @@ export interface PlayerHand {
   cards: CardBase[];
   stats: CardStats;
 }
-
-export { CardRarity as default };

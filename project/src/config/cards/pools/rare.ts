@@ -3,24 +3,46 @@ import { RARITY_COLORS } from '../rarities';
 
 export const RARE_CARDS: CardBase[] = [
   {
-    id: 'healing-light',
-    name: 'Healing Light',
-    description: 'Bathe yourself in healing light',
+    id: 'chain-lightning',
+    name: 'Chain Lightning',
+    description: 'Deal 3 damage to target and 1 damage to adjacent players',
+    manaCost: 3.0,
+    rarity: CardRarity.RARE,
+    type: 'damage',
+    effect: {
+      type: 'damage',
+      value: 3.0,
+      chainEffect: {
+        type: 'damage',
+        value: 1.0
+      }
+    },
+    requiresTarget: true,
+    color: RARITY_COLORS[CardRarity.RARE]
+  },
+  {
+    id: 'mana-surge',
+    name: 'Mana Surge',
+    description: 'Double your current mana',
     manaCost: 2.0,
     rarity: CardRarity.RARE,
-    type: 'heal',
-    effect: { type: 'heal', value: 3.0 },
+    type: 'utility',
+    effect: { type: 'manaMultiply', value: 2.0 },
     requiresTarget: false,
     color: RARITY_COLORS[CardRarity.RARE]
   },
   {
-    id: 'mana-drain',
-    name: 'Mana Drain',
-    description: 'Drain mana from your target',
-    manaCost: 2.0,
+    id: 'vampiric-touch',
+    name: 'Vampiric Touch',
+    description: 'Deal 3 damage and heal for half the damage dealt',
+    manaCost: 3.0,
     rarity: CardRarity.RARE,
-    type: 'utility',
-    effect: { type: 'manaDrain', value: 3.0 },
+    type: 'hybrid',
+    effect: {
+      type: 'damage',
+      value: 3.0,
+      lifeSteal: 0.5
+    },
     requiresTarget: true,
     color: RARITY_COLORS[CardRarity.RARE]
   }

@@ -1,70 +1,44 @@
-import { Card, CardCollection } from '../types/cards';
+import { Card } from '../types/game';
+import { EffectManager } from './effectManager';
 
 export class CardManager {
-  private collection: CardCollection;
+  private effectManager: EffectManager;
 
-  constructor() {
-    this.collection = {
-      cards: [],
-      version: '1.0.0',
-      lastUpdated: new Date().toISOString()
-    };
+  constructor(effectManager: EffectManager) {
+    this.effectManager = effectManager;
   }
 
-  addCard(card: Omit<Card, 'id'>): Card {
-    const newCard: Card = {
+  calculateCardEffect(card: Card): number {
+    let value = card.effect.value;
+
+    switch (card.effect.type) {
+      case 'damage':
+        value = this.effectManager.calculateEffectValue('damage', value);
+        break;
+      case 'heal':
+        value = this.effectManager.calculateEffectValue('healing', value);
+        break;
+      case 'manaDrain':
+      case 'manaRefill':
+      case 'manaBurn':
+        value = this.effectManager.calculateEffectValue('mana', value);
+        break;
+    }
+
+    if (card.effect.statusEffect) {
+      this.effectManager.addStatusEffect(card.effect.statusEffect);
+    }
+
+    return value;
+  }
+
+  applyCardEnhancements(card: Card): Card {
+    return {
       ...card,
-      id: this.generateCardId()
+      effect: {
+        ...card.effect,
+        value: this.calculateCardEffect(card)
+      }
     };
-    
-    this.collection.cards.push(newCard);
-    this.updateCollection();
-    return newCard;
-  }
-
-  updateCard(id: string, updates: Partial<Card>): Card {
-    const index = this.collection.cards.findIndex(card => card.id === id);
-    if (index === -1) throw new Error('Card not found');
-
-    const updatedCard = {
-      ...this.collection.cards[index],
-      ...updates
-    };
-
-    this.collection.cards[index] = updatedCard;
-    this.updateCollection();
-    return updatedCard;
-  }
-
-  removeCard(id: string): void {
-    const index = this.collection.cards.findIndex(card => card.id === id);
-    if (index === -1) throw new Error('Card not found');
-
-    this.collection.cards.splice(index, 1);
-    this.updateCollection();
-  }
-
-  getCard(id: string): Card | undefined {
-    return this.collection.cards.find(card => card.id === id);
-  }
-
-  searchCards(query: string): Card[] {
-    const lowercaseQuery = query.toLowerCase();
-    return this.collection.cards.filter(card => 
-      card.name.toLowerCase().includes(lowercaseQuery) ||
-      card.description.toLowerCase().includes(lowercaseQuery)
-    );
-  }
-
-  getAllCards(): Card[] {
-    return [...this.collection.cards];
-  }
-
-  private generateCardId(): string {
-    return `card_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  private updateCollection(): void {
-    this.collection.lastUpdated = new Date().toISOString();
   }
 }

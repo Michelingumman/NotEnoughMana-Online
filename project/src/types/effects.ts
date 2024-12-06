@@ -1,40 +1,53 @@
-export type EffectDuration = {
-  turnsLeft: number;
-  initialDuration: number;
-};
+export type EffectType = 
+  | 'damage' 
+  | 'heal' 
+  | 'manaDrain' 
+  | 'manaRefill' 
+  | 'manaBurn' 
+  | 'challenge';
 
-export type PotionEffect = {
-  id: string;
-  type: 'buff' | 'debuff';
-  value: number;
-  duration: EffectDuration;
-  source: string; // Card ID that applied the effect
-  stackId?: string; // For tracking stacking effects
-};
-
-export type EnhancementEffect = {
-  id: string;
-  type: 'multiply' | 'add';
-  value: number;
-  target: 'damage' | 'healing' | 'mana' | 'potion';
-  duration: EffectDuration;
-};
-
-export type LegendaryEffect = {
-  id: string;
-  type: 'legendary';
-  name: string;
-  cooldown: number;
-  currentCooldown: number;
-  triggerCondition?: {
-    type: 'health' | 'mana' | 'effects' | 'cards';
+export interface ChallengeEffects {
+  winner: {
+    type: EffectType;
     value: number;
-    comparison: 'less' | 'greater' | 'equal';
   };
-};
+  loser: {
+    type: EffectType;
+    value: number;
+  };
+}
+
+export interface CardEffect {
+  type: EffectType;
+  value: number;
+  challengeEffects?: ChallengeEffects;
+  statusEffect?: StatusEffect;
+  additionalEffect?: {
+    type: string;
+    value: number;
+  };
+  chainEffect?: {
+    type: string;
+    value: number;
+  };
+  areaEffect?: boolean;
+  manaReturn?: number;
+  lifeSteal?: number;
+}
+
+export interface StatusEffect {
+  type: 'poison' | 'burn' | 'stun' | 'weakness';
+  value: number;
+  duration: number;
+}
+
+export interface Enhancement {
+  type: string;
+  value: number;
+  duration: number;
+}
 
 export interface ActiveEffects {
-  potions: PotionEffect[];
-  enhancements: EnhancementEffect[];
-  legendary: LegendaryEffect[];
+  statusEffects: StatusEffect[];
+  enhancements: Enhancement[];
 }

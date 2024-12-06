@@ -12,25 +12,21 @@ export class CardEnhancer {
     const enhancedCard = { ...card };
 
     if (card.effect.type === 'damage') {
-      const calculateDamage = this.effectManager.calculateTotalEffect('damage');
-      enhancedCard.effect.value = calculateDamage(card.effect.value);
+      enhancedCard.effect.value = this.effectManager.calculateEffectValue('damage', card.effect.value);
     }
 
     if (card.effect.type === 'heal') {
-      const calculateHealing = this.effectManager.calculateTotalEffect('healing');
-      enhancedCard.effect.value = calculateHealing(card.effect.value);
+      enhancedCard.effect.value = this.effectManager.calculateEffectValue('healing', card.effect.value);
     }
 
     if (card.manaCost > 0) {
-      const calculateMana = this.effectManager.calculateTotalEffect('mana');
-      enhancedCard.manaCost = calculateMana(card.manaCost);
+      enhancedCard.manaCost = this.effectManager.calculateEffectValue('mana', card.manaCost);
     }
 
     return enhancedCard;
   }
 
   enhancePotion(value: number): number {
-    const calculatePotion = this.effectManager.calculateTotalEffect('potion');
-    return calculatePotion(value);
+    return this.effectManager.calculateEffectValue('potion', value);
   }
 }

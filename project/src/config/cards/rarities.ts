@@ -1,17 +1,19 @@
 import { CardRarity } from '../../types/cards';
 
 export const RARITY_WEIGHTS = {
-  [CardRarity.COMMON]: 1.0,
-  [CardRarity.RARE]: 0.0,
-  [CardRarity.EPIC]: 0.0,
-  [CardRarity.LEGENDARY]: 0.0,
+  [CardRarity.COMMON]: 0.50,
+  [CardRarity.UNCOMMON]: 0.30,
+  [CardRarity.RARE]: 0.15,
+  [CardRarity.EPIC]: 0.04,
+  [CardRarity.LEGENDARY]: 0.01
 } as const;
 
 export const RARITY_COLORS = {
-  [CardRarity.COMMON]: 'from-blue-800 to-blue-900',
-  [CardRarity.RARE]: 'from-green-800 to-green-900',
-  [CardRarity.EPIC]: 'from-purple-800 to-purple-900',
-  [CardRarity.LEGENDARY]: 'from-yellow-700 to-yellow-800',
+  [CardRarity.COMMON]: 'from-gray-700 to-gray-800',
+  [CardRarity.UNCOMMON]: 'from-blue-700 to-blue-800',
+  [CardRarity.RARE]: 'from-green-700 to-green-800',
+  [CardRarity.EPIC]: 'from-purple-700 to-purple-800',
+  [CardRarity.LEGENDARY]: 'from-yellow-600 to-yellow-700'
 } as const;
 
 export const CARDS_PER_HAND = 4;

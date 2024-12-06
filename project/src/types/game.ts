@@ -1,4 +1,10 @@
 import { CardBase, CardRarity, CardStats, PlayerHand } from './cards';
+import { StatusEffect } from './effects';
+
+export interface TurnPhase {
+  type: 'start' | 'main' | 'end';
+  effects: StatusEffect[];
+}
 
 export interface Player {
   id: string;
@@ -7,28 +13,35 @@ export interface Player {
   mana: number;
   cards: Card[];
   isLeader?: boolean;
-  effects?: PlayerEffect[];
+  effects?: StatusEffect[];
   potionMultiplier?: {
     value: number;
     turnsLeft: number;
   };
-  titanForm?: {
-    turnsLeft: number;
-    bonusHealth: number;
-    bonusDamage: number;
-  };
-  infiniteVoid?: {
-    turnsLeft: number;
-  };
+  turnPhase?: TurnPhase;
 }
 
-export interface PlayerEffect {
+export interface GameAction {
   type: string;
+  playerId: string;
+  targetId?: string;
   value: number;
-  duration: number;
+  timestamp: number;
+  cardId?: string;
+  effects?: StatusEffect[];
 }
 
-export type Card = CardBase;
+export interface GameSettings {
+  maxHealth: number;
+  maxMana: number;
+  manaDrinkAmount: number;
+  initialHealth: number;
+  initialMana: number;
+  initialCardCount: number;
+  turnTimeLimit?: number;
+  partyId?: string;
+  playerId?: string;
+}
 
 export interface Party {
   id: string;
@@ -40,30 +53,10 @@ export interface Party {
   winner?: string | null;
   settings?: GameSettings;
   lastAction?: GameAction;
-  previousState?: {
-    players: Player[];
-    currentTurn: string;
-    timestamp: number;
-  };
+  turnPhase?: TurnPhase;
+  createdAt: number;
 }
 
-export interface GameAction {
-  type: string;
-  playerId: string;
-  targetId?: string;
-  value: number;
-  timestamp: number;
-  cardName: string;
-}
-
-export interface GameSettings {
-  maxHealth: number;
-  maxMana: number;
-  manaDrinkAmount: number;
-  initialHealth: number;
-  initialMana: number;
-  partyId?: string;
-  playerId?: string;
-}
+export type Card = CardBase;
 
 export { CardRarity, type CardStats, type PlayerHand };

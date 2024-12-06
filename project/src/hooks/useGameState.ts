@@ -1,45 +1,19 @@
-import { useEffect, useRef, useCallback } from 'react';
-import { doc, onSnapshot, getDoc } from 'firebase/firestore';
+import { useEffect, useCallback } from 'react';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../lib/firebase';
 import { useGameStore } from '../store/gameStore';
 import { Party } from '../types/game';
 import { useAuth } from './useAuth';
-import { usePartyActions } from './usePartyActions';
 
 export function useGameState(partyId: string) {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
-  const { leaveParty } = usePartyActions();
-  const unsubscribeRef = useRef<(() => void) | null>(null);
-  const { 
-    setParty, 
-    setCurrentPlayer, 
-    setLoading, 
-    setError,
-    reset,
-    party,
-    currentPlayer 
-  } = useGameStore();
-
-  const cleanup = useCallback(() => {
-    if (unsubscribeRef.current) {
-      unsubscribeRef.current();
-      unsubscribeRef.current = null;
-    }
-  }, []);
+  const { user } = useAuth();
+  const { setParty, setCurrentPlayer, setLoading, setError } = useGameStore();
 
   const handlePartyUpdate = useCallback((doc: any) => {
-    if (!doc.exists()) {
-      cleanup();
-      setError('Party not found');
-      navigate('/');
-      return;
-    }
-
-    if (!user) {
-      cleanup();
-      setError('Authentication required');
+    if (!doc.exists() || !user) {
+      setError('Game not found or user not authenticated');
       navigate('/');
       return;
     }
@@ -48,8 +22,7 @@ export function useGameState(partyId: string) {
     const player = partyData.players.find(p => p.id === user.uid);
 
     if (!player) {
-      cleanup();
-      setError('Player not found in party');
+      setError('Player not found in game');
       navigate('/');
       return;
     }
@@ -57,76 +30,19 @@ export function useGameState(partyId: string) {
     setParty(partyData);
     setCurrentPlayer(player);
     setLoading(false);
-  }, [cleanup, navigate, setError, setLoading, setParty, setCurrentPlayer, user]);
+  }, [navigate, setError, setLoading, setParty, setCurrentPlayer, user]);
 
   useEffect(() => {
-    if (!partyId || authLoading || !user) {
-      return;
-    }
+    if (!partyId || !user) return;
 
-    const setupSubscription = async () => {
-      cleanup();
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
-      try {
-        const partyRef = doc(db, 'parties', partyId);
-        
-        // Set up real-time updates
-        const unsubscribe = onSnapshot(
-          partyRef,
-          {
-            next: handlePartyUpdate,
-            error: (error) => {
-              console.error('Error fetching party:', error);
-              setError('Failed to load game data');
-              setLoading(false);
-              cleanup();
-            }
-          }
-        );
+    const unsubscribe = onSnapshot(
+      doc(db, 'parties', partyId),
+      { next: handlePartyUpdate }
+    );
 
-        unsubscribeRef.current = unsubscribe;
-      } catch (error) {
-        console.error('Error setting up party subscription:', error);
-        setError('Failed to connect to game');
-        setLoading(false);
-        cleanup();
-      }
-    };
-
-    setupSubscription();
-
-    return () => {
-      cleanup();
-    };
-  }, [partyId, user, authLoading, cleanup, setLoading, setError, handlePartyUpdate]);
-
-  // Handle cleanup when leaving the game
-  useEffect(() => {
-    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
-      if (party && currentPlayer) {
-        event.preventDefault();
-        event.returnValue = '';
-        await leaveParty(party.id, currentPlayer.id);
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      
-      // Only clean up if we're actually leaving the game page
-      if (window.location.pathname !== `/game/${partyId}`) {
-        if (party && currentPlayer) {
-          leaveParty(party.id, currentPlayer.id);
-        }
-        cleanup();
-        reset();
-      }
-    };
-  }, [partyId, party, currentPlayer, leaveParty, cleanup, reset]);
-
-  return { cleanup };
+    return () => unsubscribe();
+  }, [partyId, user, handlePartyUpdate, setLoading, setError]);
 }

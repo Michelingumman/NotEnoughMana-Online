@@ -3,43 +3,34 @@ import { RARITY_COLORS } from '../rarities';
 
 export const LEGENDARY_CARDS: CardBase[] = [
   {
-    id: 'infinite-void',
-    name: "Gojo's: Infinite Void",
-    description: "For the next turn, all opponents' mana costs are doubled, and their card effects are reduced by half.",
+    id: 'time-warp',
+    name: 'Time Warp',
+    description: 'Take an extra turn after this one',
     manaCost: 5.0,
     rarity: CardRarity.LEGENDARY,
-    type: 'legendary',
-    effect: { type: 'infiniteVoid', value: 1.0 },
+    type: 'utility',
+    effect: { type: 'extraTurn', value: 1.0 },
     requiresTarget: false,
     color: RARITY_COLORS[CardRarity.LEGENDARY],
     isLegendary: true,
-    flavorText: 'Throughout Heaven and Earth, I alone am the honored one.'
+    flavorText: 'Time is but a window, death is but a door.'
   },
   {
-    id: 'titan-form',
-    name: "Eren Jaeger's: Titan",
-    description: 'Transform into a Titan for 3 turns. Gain +10 HP, deal +3 damage with all cards, and become immune to single-target effects.',
-    manaCost: 6.0,
-    rarity: CardRarity.LEGENDARY,
-    type: 'legendary',
-    effect: { type: 'titan', value: 3.0 },
-    requiresTarget: false,
-    color: RARITY_COLORS[CardRarity.LEGENDARY],
-    isLegendary: true,
-    flavorText: "If you win, you live. If you lose, you die. If you don't fight, you can't win!"
-  },
-  {
-    id: 'oskar-rage',
-    name: "Oskar: EYY JAG KOMMER FCKA UR ASSÅ",
-    description: 'Deal +4 Damage to all players and reduce all their Mana to 0',
+    id: 'arcane-explosion',
+    name: 'Arcane Explosion',
+    description: 'Deal 4 damage to all enemies and gain 1 mana for each damaged enemy',
     manaCost: 4.0,
     rarity: CardRarity.LEGENDARY,
-    type: 'legendary',
-    effect: { type: 'damage', value: 3.0 },
-    requiresTarget: true,
+    type: 'damage',
+    effect: {
+      type: 'damage',
+      value: 4.0,
+      areaEffect: true,
+      manaReturn: 1.0
+    },
+    requiresTarget: false,
     color: RARITY_COLORS[CardRarity.LEGENDARY],
-    isChallenge: false,
     isLegendary: true,
-    flavorText: "... testa mig inte"
+    flavorText: 'When all else fails, explosion is always the answer.'
   }
 ];
