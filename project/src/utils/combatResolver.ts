@@ -19,108 +19,90 @@ export class CombatResolver {
     maxHealth: number,
     maxMana: number
   ): { source: Player; target: Player } {
-    // Create copies to work with
     const updatedSource = { ...source };
     const updatedTarget = { ...target };
 
-    // Apply card cost
-    updatedSource.mana = Math.max(0, updatedSource.mana - card.manaCost);
+    updatedSource.effects = updatedSource.effects || [];
+    updatedTarget.effects = updatedTarget.effects || [];
 
-    // Enhance card based on active effects
     const enhancedCard = this.cardEnhancer.enhanceCard(card);
+    updatedSource.mana = Math.max(0, updatedSource.mana - enhancedCard.manaCost);
 
-    // Apply main effect
     switch (enhancedCard.effect.type) {
       case 'damage':
-        this.applyDamage(updatedTarget, enhancedCard.effect.value);
+        updatedTarget.health = Math.max(0, updatedTarget.health - enhancedCard.effect.value);
         if (enhancedCard.effect.lifeSteal) {
-          this.applyHealing(updatedSource, enhancedCard.effect.value * enhancedCard.effect.lifeSteal, maxHealth);
+          updatedSource.health = Math.min(maxHealth, updatedSource.health + (enhancedCard.effect.value * enhancedCard.effect.lifeSteal));
         }
         break;
 
       case 'heal':
-        this.applyHealing(updatedTarget, enhancedCard.effect.value, maxHealth);
+        updatedTarget.health = Math.min(maxHealth, updatedTarget.health + enhancedCard.effect.value);
         break;
 
       case 'manaDrain':
         const drainedMana = Math.min(updatedTarget.mana, enhancedCard.effect.value);
-        updatedTarget.mana -= drainedMana;
+        updatedTarget.mana = Math.max(0, updatedTarget.mana - drainedMana);
         updatedSource.mana = Math.min(maxMana, updatedSource.mana + drainedMana);
+        break;
+
+      case 'manaRefill':
+        updatedTarget.mana = maxMana;
+        break;
+
+      case 'manaBurn':
+        updatedTarget.mana = 0;
         break;
     }
 
-    // Apply status effects
     if (enhancedCard.effect.statusEffect) {
-      this.applyStatusEffect(updatedTarget, enhancedCard.effect.statusEffect);
+      updatedTarget.effects.push({ ...enhancedCard.effect.statusEffect });
     }
 
-    // Apply chain effects
-    if (enhancedCard.effect.chainEffect) {
-      // Chain effects would be handled here
-      // This would typically affect additional targets
-    }
-
-    // Apply area effects
-    if (enhancedCard.effect.areaEffect) {
-      // Area effects would be handled here
-      // This would affect all valid targets
-    }
-
-    // Return mana if specified
-    if (enhancedCard.effect.manaReturn) {
-      updatedSource.mana = Math.min(maxMana, updatedSource.mana + enhancedCard.effect.manaReturn);
+    if (enhancedCard.effect.additionalEffect) {
+      switch (enhancedCard.effect.additionalEffect.type) {
+        case 'block':
+          updatedSource.effects.push({
+            type: 'block',
+            value: enhancedCard.effect.additionalEffect.value,
+            duration: 1
+          });
+          break;
+      }
     }
 
     return { source: updatedSource, target: updatedTarget };
   }
 
-  private applyDamage(target: Player, amount: number): void {
-    target.health = Math.max(0, target.health - amount);
-  }
-
-  private applyHealing(target: Player, amount: number, maxHealth: number): void {
-    target.health = Math.min(maxHealth, target.health + amount);
-  }
-
-  private applyStatusEffect(target: Player, effect: StatusEffect): void {
-    if (!target.effects) {
-      target.effects = [];
-    }
-
-    const existingEffect = target.effects.find(e => e.type === effect.type);
-    if (existingEffect) {
-      existingEffect.duration = Math.max(existingEffect.duration, effect.duration);
-      existingEffect.value += effect.value;
-    } else {
-      target.effects.push({ ...effect });
-    }
-  }
-
   updateStatusEffects(player: Player): Player {
-    if (!player.effects) return player;
-
     const updatedPlayer = { ...player };
-    updatedPlayer.effects = updatedPlayer.effects
-      .map(effect => {
-        // Apply effect
+    updatedPlayer.effects = updatedPlayer.effects || [];
+    const activeEffects: StatusEffect[] = [];
+
+    updatedPlayer.effects.forEach(effect => {
+      if (effect.duration > 0) {
         switch (effect.type) {
           case 'poison':
           case 'burn':
             updatedPlayer.health = Math.max(0, updatedPlayer.health - effect.value);
             break;
+          case 'stun':
           case 'weakness':
-            // Weakness is handled by the CardEnhancer
+          case 'block':
+            // These effects are handled by the effect manager
             break;
         }
+        
+        if (effect.duration > 1) {
+          activeEffects.push({
+            ...effect,
+            duration: effect.duration - 1
+          });
+        }
+      }
+    });
 
-        // Decrease duration
-        return {
-          ...effect,
-          duration: effect.duration - 1
-        };
-      })
-      .filter(effect => effect.duration > 0);
-
+    updatedPlayer.effects = activeEffects;
     return updatedPlayer;
   }
 }

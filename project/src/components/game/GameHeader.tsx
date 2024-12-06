@@ -1,6 +1,7 @@
 import { Button } from '../ui/Button';
 import { LogOut } from 'lucide-react';
-import { GameSettings } from './GameSettings';
+import { GameSettingsComponent } from './GameSettings'; // Component
+import { GameSettings } from '../../types/game'; // Type
 import { Party } from '../../types/game';
 
 interface GameHeaderProps {
@@ -34,7 +35,7 @@ export function GameHeader({
             Start Game
           </Button>
         )}
-        <GameSettings
+        <GameSettingsComponent
           onSave={onUpdateSettings}
           isLeader={isLeader}
         />

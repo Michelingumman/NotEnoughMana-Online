@@ -10,7 +10,7 @@ interface GameSettingsProps {
   isLeader: boolean;
 }
 
-export function GameSettings({ onSave, isLeader }: GameSettingsProps) {
+export function GameSettingsComponent({ onSave, isLeader }: GameSettingsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [settings, setSettings] = useState<GameSettingsType>({
     maxHealth: GAME_CONFIG.MAX_HEALTH,
@@ -18,6 +18,8 @@ export function GameSettings({ onSave, isLeader }: GameSettingsProps) {
     manaDrinkAmount: GAME_CONFIG.MANA_DRINK_AMOUNT,
     initialHealth: GAME_CONFIG.INITIAL_HEALTH,
     initialMana: GAME_CONFIG.INITIAL_MANA,
+    initialCardCount: GAME_CONFIG.INITIAL_CARD_COUNT
+
   });
 
   if (!isLeader) return null;

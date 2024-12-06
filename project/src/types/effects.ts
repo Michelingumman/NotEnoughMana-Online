@@ -1,3 +1,5 @@
+export type StatusEffectType = 'poison' | 'burn' | 'stun' | 'weakness' | 'block';
+
 export type EffectType = 
   | 'damage' 
   | 'heal' 
@@ -6,23 +8,12 @@ export type EffectType =
   | 'manaBurn' 
   | 'challenge'
   | 'extraTurn'
-  | 'block'
-  | 'poison'
-  | 'burn'
-  | 'stun'
-  | 'weakness';
+  | StatusEffectType;
 
-export interface LegendaryEffect {
-  name: string;
-  type: EffectType;
+export interface StatusEffect {
+  type: StatusEffectType;
   value: number;
-  cooldown: number;
-  currentCooldown: number;
-  requirements?: {
-    health?: number;
-    mana?: number;
-    cardCount?: number;
-  };
+  duration: number;
 }
 
 export interface ChallengeEffects {
@@ -52,22 +43,4 @@ export interface CardEffect {
   areaEffect?: boolean;
   manaReturn?: number;
   lifeSteal?: number;
-}
-
-export interface StatusEffect {
-  type: 'poison' | 'burn' | 'stun' | 'weakness';
-  value: number;
-  duration: number;
-}
-
-export interface Enhancement {
-  type: string;
-  value: number;
-  duration: number;
-}
-
-export interface ActiveEffects {
-  statusEffects: StatusEffect[];
-  enhancements: Enhancement[];
-  legendary: LegendaryEffect[];
 }
