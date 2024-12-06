@@ -12,7 +12,13 @@ export type EffectType =
   | 'manaDrain' 
   | 'manaRefill' 
   | 'manaBurn' 
-  | 'challenge';
+  | 'challenge'
+  | 'extraTurn'
+  | 'block'
+  | 'poison'
+  | 'burn'
+  | 'stun'
+  | 'weakness';
 
 export interface ChallengeEffects {
   winner: {
@@ -31,11 +37,11 @@ export interface CardEffect {
   challengeEffects?: ChallengeEffects;
   statusEffect?: StatusEffect;
   additionalEffect?: {
-    type: string;
+    type: EffectType;
     value: number;
   };
   chainEffect?: {
-    type: string;
+    type: EffectType;
     value: number;
   };
   areaEffect?: boolean;

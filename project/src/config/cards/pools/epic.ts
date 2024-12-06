@@ -1,4 +1,5 @@
 import { CardBase, CardRarity } from '../../../types/cards';
+import { RARITY_COLORS } from '../rarities';
 
 export const EPIC_CARDS: CardBase[] = [
   {

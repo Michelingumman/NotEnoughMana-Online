@@ -6,27 +6,32 @@ import { ActionLog } from './ActionLog';
 import { useGameStore } from '../../store/gameStore';
 import { useCardActions } from '../../hooks/useCardActions';
 
-export function GameBoard({ partyId }: { partyId: string }) {
+interface GameBoardProps {
+  partyId: string;
+  onPlayCard: (card: Card) => void;
+  onTargetSelect: (targetId: string) => void;
+  selectedCard: Card | null;
+}
+
+export function GameBoard({ 
+  partyId, 
+  onPlayCard, 
+  onTargetSelect, 
+  selectedCard 
+}: GameBoardProps) {
   const { party, currentPlayer } = useGameStore();
   const { playCard } = useCardActions(partyId);
-  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
 
   const isCurrentTurn = party?.currentTurn === currentPlayer?.id;
 
   const handleCardSelect = (card: Card) => {
     if (!isCurrentTurn || !currentPlayer) return;
-    setSelectedCard(card);
+    onPlayCard(card);
   };
 
   const handleTargetSelect = async (targetId: string) => {
     if (!selectedCard || !currentPlayer) return;
-
-    try {
-      await playCard(selectedCard, targetId);
-      setSelectedCard(null);
-    } catch (error) {
-      console.error('Error playing card:', error);
-    }
+    onTargetSelect(targetId);
   };
 
   if (!party || !currentPlayer) return null;
@@ -47,7 +52,8 @@ export function GameBoard({ partyId }: { partyId: string }) {
               isCurrentTurn={player.id === party.currentTurn}
               isTargetable={Boolean(
                 selectedCard?.requiresTarget &&
-                player.health > 0
+                player.health > 0 &&
+                (selectedCard.effect.type === 'heal' || player.id !== currentPlayer.id)
               )}
               onSelect={() => handleTargetSelect(player.id)}
             />
@@ -72,6 +78,7 @@ export function GameBoard({ partyId }: { partyId: string }) {
           <CardList
             cards={currentPlayer.cards}
             onPlayCard={handleCardSelect}
+            onDoubleClickCard={handleCardSelect}
             disabled={!isCurrentTurn}
             currentMana={currentPlayer.mana}
             selectedCard={selectedCard}

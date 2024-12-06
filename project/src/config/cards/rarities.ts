@@ -11,7 +11,7 @@ export const RARITY_WEIGHTS = {
 export const RARITY_COLORS = {
   [CardRarity.COMMON]: 'from-gray-700 to-gray-800',
   [CardRarity.UNCOMMON]: 'from-blue-700 to-blue-800',
-  [CardRarity.RARE]: 'from-green-700 to-green-800',
+  [CardRarity.RARE]: 'from-purple-700 to-purple-800',
   [CardRarity.EPIC]: 'from-purple-700 to-purple-800',
   [CardRarity.LEGENDARY]: 'from-yellow-600 to-yellow-700'
 } as const;

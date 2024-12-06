@@ -4,7 +4,26 @@ export type EffectType =
   | 'manaDrain' 
   | 'manaRefill' 
   | 'manaBurn' 
-  | 'challenge';
+  | 'challenge'
+  | 'extraTurn'
+  | 'block'
+  | 'poison'
+  | 'burn'
+  | 'stun'
+  | 'weakness';
+
+export interface LegendaryEffect {
+  name: string;
+  type: EffectType;
+  value: number;
+  cooldown: number;
+  currentCooldown: number;
+  requirements?: {
+    health?: number;
+    mana?: number;
+    cardCount?: number;
+  };
+}
 
 export interface ChallengeEffects {
   winner: {
@@ -23,11 +42,11 @@ export interface CardEffect {
   challengeEffects?: ChallengeEffects;
   statusEffect?: StatusEffect;
   additionalEffect?: {
-    type: string;
+    type: EffectType;
     value: number;
   };
   chainEffect?: {
-    type: string;
+    type: EffectType;
     value: number;
   };
   areaEffect?: boolean;
@@ -50,4 +69,5 @@ export interface Enhancement {
 export interface ActiveEffects {
   statusEffects: StatusEffect[];
   enhancements: Enhancement[];
+  legendary: LegendaryEffect[];
 }
