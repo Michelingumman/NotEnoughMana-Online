@@ -12,6 +12,7 @@ import { useGameState } from '../hooks/useGameState';
 import { usePartyActions } from '../hooks/usePartyActions';
 import { useTurnActions } from '../hooks/useTurnActions';
 import { useCardActions } from '../hooks/useCardActions';
+import { useChallengeCard } from '../hooks/useChallengeCard';
 
 export function Game() {
   const { partyId = '' } = useParams<{ partyId: string }>();
@@ -22,6 +23,17 @@ export function Game() {
   const { leaveParty, startGame, updateGameSettings } = usePartyActions();
   const { startTurn, endTurn } = useTurnActions(partyId);
   const { playCard } = useCardActions(partyId);
+  const {
+    challengeCard,
+    isModalOpen,
+    winnerId,
+    loserId,
+    openChallengeModal,
+    closeChallengeModal,
+    selectWinner,
+    selectLoser,
+    validateSelection
+  } = useChallengeCard();
 
   useGameState(partyId);
 
@@ -45,6 +57,7 @@ export function Game() {
     try {
       if (card.isChallenge) {
         setSelectedCard(card);
+        openChallengeModal(card);
       } else if (card.requiresTarget) {
         setSelectedCard(card);
       } else {
@@ -68,13 +81,14 @@ export function Game() {
     }
   };
 
-  const handleChallengeResolve = async (winnerId: string, loserId: string) => {
-    if (!currentPlayer || !selectedCard || !isCurrentTurn) return;
+  const handleChallengeResolve = async (winId: string, loseId: string) => {
+    if (!currentPlayer || !challengeCard || !isCurrentTurn) return;
 
     try {
-      await resolveChallengeCard(currentPlayer.id, selectedCard, winnerId, loserId);
+      await resolveChallengeCard(currentPlayer.id, challengeCard, winId, loseId);
       await endTurn();
       setSelectedCard(null);
+      closeChallengeModal();
     } catch (error) {
       console.error('Error resolving challenge:', error);
     }
@@ -135,6 +149,8 @@ export function Game() {
     );
   }
 
+  const validationError = party ? validateSelection(party.players) : null;
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-purple-900 overflow-auto">
       <div className="max-w-6xl mx-auto p-4">
@@ -169,13 +185,18 @@ export function Game() {
           />
         )}
 
-        {selectedCard?.isChallenge && (
+        {isModalOpen && challengeCard && (
           <ChallengeModal
-            card={selectedCard}
+            card={challengeCard}
             players={party.players}
             currentPlayerId={currentPlayer.id}
             onConfirm={handleChallengeResolve}
-            onCancel={() => setSelectedCard(null)}
+            onCancel={closeChallengeModal}
+            onSelectWinner={selectWinner}
+            onSelectLoser={selectLoser}
+            winnerId={winnerId}
+            loserId={loserId}
+            validationError={validationError}
           />
         )}
       </div>

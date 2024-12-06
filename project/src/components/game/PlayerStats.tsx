@@ -7,6 +7,7 @@ interface PlayerStatsProps {
   isCurrentPlayer: boolean;
   isCurrentTurn: boolean;
   isTargetable: boolean;
+  isSelected?: boolean;
   onSelect?: () => void;
 }
 
@@ -15,6 +16,7 @@ export function PlayerStats({
   isCurrentPlayer, 
   isCurrentTurn,
   isTargetable,
+  isSelected,
   onSelect 
 }: PlayerStatsProps) {
   const isDead = player.health <= 0;
@@ -35,7 +37,8 @@ export function PlayerStats({
           'transform hover:scale-102': isCurrentTurn && !isDead,
           'cursor-pointer hover:ring-2 hover:ring-purple-400/50': isTargetable,
           'hover:scale-102': isTargetable,
-          'ring-2 ring-purple-400/50 scale-102': isTargetable
+          'ring-2 ring-purple-400/50 scale-102': isSelected,
+          'opacity-50': !isTargetable && !isSelected
         }
       )}
     >
@@ -98,9 +101,9 @@ export function PlayerStats({
         </div>
       )}
 
-      {isTargetable && (
+      {isTargetable && !isSelected && (
         <div className="mt-1.5 text-[10px] text-purple-300 animate-pulse uppercase tracking-wider">
-          Click to target
+          Click to select
         </div>
       )}
     </div>
